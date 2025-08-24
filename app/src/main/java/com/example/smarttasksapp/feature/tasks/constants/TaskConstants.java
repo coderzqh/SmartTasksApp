@@ -1,0 +1,66 @@
+package com.example.smarttasksapp.feature.tasks.constants;
+
+public class TaskConstants {
+    // 数据库相关
+    public static final String TABLE_NAME = "tasks";
+    
+    // 缓存相关
+    public static final String PREF_NAME = "add_task_cache";
+    public static final String KEY_TITLE = "cached_title";
+    public static final String KEY_DESCRIPTION = "cached_description";
+    public static final String KEY_START_TIME = "cached_start_time";
+    
+    // 时间格式
+    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm";
+    
+    // 颜色常量
+    public static final String COLOR_COMPLETED = "#FF9800"; // 橙色
+    public static final String COLOR_PENDING = "#4CAF50";   // 绿色
+    public static final String COLOR_GRAY = "#9E9E9E";      // 灰色
+    
+    // 文本常量
+    public static final String TEXT_COMPLETE = "完成";
+    public static final String TEXT_INCOMPLETE = "未完成";
+    public static final String TEXT_NOT_SET = "未设置";
+    public static final String TEXT_SELECT_TIME = "选择时间";
+    public static final String TEXT_TITLE_TOO_LONG = "标题最多两行";
+    public static final String TEXT_TITLE_EMPTY = "标题不能为空";
+    
+    // 错误消息
+    public static final String ERROR_ADD_TASK = "添加任务失败: ";
+    public static final String ERROR_UPDATE_TASK = "更新任务失败: ";
+    public static final String ERROR_DELETE_TASK = "删除任务失败: ";
+    public static final String ERROR_REORDER = "重新排序失败: ";
+    public static final String ERROR_PERSIST_ORDER = "保存排序失败: ";
+    public static final String ERROR_UPDATE_STATUS = "更新任务状态失败: ";
+    public static final String ERROR_UPDATE_TIME = "更新开始时间失败: ";
+    
+    // 确认对话框
+    public static final String DIALOG_DELETE_TITLE = "确认删除";
+    public static final String DIALOG_DELETE_MESSAGE = "确定要删除这个任务吗？删除后无法恢复。";
+    public static final String DIALOG_DELETE_CONFIRM = "确认删除";
+    public static final String DIALOG_DELETE_CANCEL = "取消";
+    public static final String DIALOG_DELETE_SUCCESS = "任务已删除";
+    
+    // Fragment标签
+    public static final String FRAGMENT_TASK_DETAIL = "taskDetail";
+    public static final String FRAGMENT_ADD_TASK = "addTask";
+    
+    // Bundle参数
+    public static final String ARG_ID = "arg_id";
+    public static final String ARG_TITLE = "arg_title";
+    public static final String ARG_DESC = "arg_desc";
+    public static final String ARG_TIME = "arg_time";
+    public static final String ARG_START_TIME = "arg_start_time";
+    
+    // 默认值
+    public static final int DEFAULT_SORT_INDEX = 0;
+    public static final long DEFAULT_START_TIME = 0L;
+    public static final boolean DEFAULT_COMPLETED = false;
+    
+    // 限制
+    public static final int MAX_TITLE_LINES = 2;
+    public static final int MAX_TITLE_WARN_COUNT = 2;
+    public static final float SWIPE_THRESHOLD = 0.3f;
+    public static final float SWIPE_ESCAPE_VELOCITY_MULTIPLIER = 0.5f;
+}
