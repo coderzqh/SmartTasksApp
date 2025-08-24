@@ -4,7 +4,7 @@ package com.example.smarttasksapp.feature.tasks.domain;
  * 任务领域实体
  * 用于feature层内部使用，与infrastructure层解耦
  */
-public class Task {
+public class TaskEntity {
     private long id;
     private String title;
     private String description;
@@ -13,18 +13,19 @@ public class Task {
     private boolean isCompleted;
     private long startTime;
 
-    public Task() {}
+    public TaskEntity() {}
 
-    public Task(String title, String description, long createdAt) {
+    public TaskEntity(String title, String description, long startTime) {
         this.title = title;
         this.description = description;
-        this.createdAt = createdAt;
+        this.startTime = startTime;
+        this.createdAt = System.currentTimeMillis();
         this.isCompleted = false;
-        this.startTime = 0;
+        this.sortIndex = 0;
     }
 
-    public Task(long id, String title, String description, long createdAt, 
-                long sortIndex, boolean isCompleted, long startTime) {
+    public TaskEntity(long id, String title, String description, long createdAt,
+                      long sortIndex, boolean isCompleted, long startTime) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -60,7 +61,7 @@ public class Task {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
+        TaskEntity task = (TaskEntity) o;
         return id == task.id;
     }
 
@@ -71,7 +72,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
+        return "TaskEntity{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +

@@ -2,12 +2,13 @@ package com.example.smarttasksapp.feature.tasks.data;
 
 import androidx.lifecycle.LiveData;
 
-import com.example.smarttasksapp.feature.tasks.domain.Task;
+import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface ITaskRepository {
-    LiveData<List<Task>> observeAll();
+    LiveData<List<TaskEntity>> observeAll();
     
     /**
      * 添加任务并返回任务ID
@@ -16,12 +17,11 @@ public interface ITaskRepository {
      * @param startTime 开始时间
      * @return 新创建的任务ID
      */
-    long addTask(String title, String description, long startTime);
-    
-    void reorder(long fromTaskId, long toTaskId, boolean placeAbove);
-    void persistOrder(List<Task> ordered);
-    void updateTask(long taskId, String title, String description, long startTime);
-    void updateTaskCompletedStatus(long taskId, boolean isCompleted);
-    void updateTaskStartTime(long taskId, long startTime);
-    void deleteTask(long taskId);
+    CompletableFuture<Long> addTask(String title, String description, long startTime);
+
+    CompletableFuture<Boolean> persistOrder(List<TaskEntity> ordered);
+    CompletableFuture<Boolean> updateTask(TaskEntity task);
+    CompletableFuture<Boolean> updateTaskCompletedStatus(long taskId, boolean isCompleted);
+    CompletableFuture<Boolean> updateTaskStartTime(long taskId, long startTime);
+    CompletableFuture<Boolean> deleteTask(long taskId);
 }

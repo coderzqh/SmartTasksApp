@@ -6,6 +6,7 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
+import androidx.room.Update;
 
 import com.example.smarttasksapp.infrastructure.entity.Task;
 
@@ -15,6 +16,9 @@ import java.util.List;
 public interface TaskDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(Task task);
+
+    @Update
+    void update(Task task);
 
     @Query("SELECT * FROM tasks ORDER BY sortIndex DESC, createdAt ASC")
     LiveData<List<Task>> observeAll();

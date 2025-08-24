@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.smarttasksapp.feature.tasks.domain.Task;
+import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class SwipeToCompleteCallback extends ItemTouchHelper.Callback {
     }
 
     public interface OnDragCompleteListener {
-        void onDragComplete(List<Task> ordered);
+        void onDragComplete(List<TaskEntity> ordered);
     }
 
     public SwipeToCompleteCallback(TaskAdapter adapter, OnSwipeListener listener) {
@@ -72,7 +72,7 @@ public class SwipeToCompleteCallback extends ItemTouchHelper.Callback {
         if (direction == ItemTouchHelper.START) {
             int position = viewHolder.getAdapterPosition();
             if (position != RecyclerView.NO_POSITION) {
-                Task task = adapter.getCurrentList().get(position);
+                TaskEntity task = adapter.getCurrentList().get(position);
                 if (swipeListener != null) {
                     swipeListener.onTaskStatusChanged(task.getId(), !task.isCompleted());
                 }
@@ -99,7 +99,7 @@ public class SwipeToCompleteCallback extends ItemTouchHelper.Callback {
                 // 根据任务状态选择颜色
                 int position = viewHolder.getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
-                    Task task = adapter.getCurrentList().get(position);
+                    TaskEntity task = adapter.getCurrentList().get(position);
                     if (task.isCompleted()) {
                         paint.setColor(Color.parseColor("#FF9800")); // 已完成：橙色
                     } else {
@@ -129,7 +129,7 @@ public class SwipeToCompleteCallback extends ItemTouchHelper.Callback {
                     
                     // 根据任务状态选择图标
                     if (position != RecyclerView.NO_POSITION) {
-                        Task task = adapter.getCurrentList().get(position);
+                        TaskEntity task = adapter.getCurrentList().get(position);
                         if (task.isCompleted()) {
                             c.drawText("↺", iconX, iconY, paint); // 未完成图标
                         } else {
@@ -153,7 +153,7 @@ public class SwipeToCompleteCallback extends ItemTouchHelper.Callback {
         super.clearView(recyclerView, viewHolder);
         // 拖拽完成后通知监听器
         if (dragCompleteListener != null) {
-            List<Task> ordered = adapter.getCurrentList();
+            List<TaskEntity> ordered = adapter.getCurrentList();
             dragCompleteListener.onDragComplete(ordered);
         }
     }

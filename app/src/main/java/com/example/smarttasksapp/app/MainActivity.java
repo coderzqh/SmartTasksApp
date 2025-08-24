@@ -17,11 +17,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
 import com.example.smarttasksapp.R;
+import com.example.smarttasksapp.core.lifecycle.AppLifecycleManager;
+import com.example.smarttasksapp.core.lifecycle.FragmentLifecycleManager;
 import com.example.smarttasksapp.feature.tasks.ui.adapter.TaskAdapter;
 import com.example.smarttasksapp.feature.tasks.ui.adapter.SwipeToCompleteCallback;
 import com.example.smarttasksapp.feature.tasks.ui.view.AddTaskBottomSheet;
 import com.example.smarttasksapp.feature.tasks.ui.viewmodel.TaskViewModel;
-import com.example.smarttasksapp.feature.tasks.domain.Task;
+import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TaskViewModel viewModel;
     private TaskAdapter adapter;
+    private FragmentLifecycleManager fragmentLifecycleManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +45,11 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // 初始化Fragment生命周期管理
+        AppLifecycleManager lifecycleManager = AppLifecycleManager.getInstance();
+        fragmentLifecycleManager = FragmentLifecycleManager.getInstance(lifecycleManager);
+        fragmentLifecycleManager.registerFragmentLifecycle(getSupportFragmentManager());
+
         RecyclerView rv = findViewById(R.id.rvTasks);
         View fab = findViewById(R.id.fabAdd);
 
@@ -51,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 设置任务状态变化监听器
         adapter.setOnTaskStatusChangeListener((taskId, isCompleted) -> {
-            viewModel.updateTaskCompletedStatus(taskId, isCompleted);
+            viewModel.updateTaskStatus(taskId, isCompleted);
         });
 
         viewModel = new ViewModelProvider(this).get(TaskViewModel.class);
@@ -106,14 +114,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void attachDragSort(RecyclerView recyclerView) {
         SwipeToCompleteCallback callback = new SwipeToCompleteCallback(adapter, (taskId, isCompleted) -> {
-            viewModel.updateTaskCompletedStatus(taskId, isCompleted);
+            viewModel.updateTaskStatus(taskId, isCompleted);
         });
         
         // 设置拖拽排序回调
         callback.setOnMoveListener((from, to) -> {
             if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) return false;
-            List<Task> current = new ArrayList<>(adapter.getCurrentList());
-            Task moved = current.remove(from);
+            List<TaskEntity> current = new ArrayList<>(adapter.getCurrentList());
+            TaskEntity moved = current.remove(from);
             current.add(to, moved);
             adapter.submitList(current);
             return true;
@@ -121,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         
         // 设置拖拽完成回调
         callback.setOnDragCompleteListener((ordered) -> {
-            viewModel.persistOrder(ordered);
+            viewModel.persistTaskOrder(ordered);
         });
         
         new ItemTouchHelper(callback).attachToRecyclerView(recyclerView);

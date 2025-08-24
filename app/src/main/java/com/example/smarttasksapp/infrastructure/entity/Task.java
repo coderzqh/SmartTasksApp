@@ -26,12 +26,25 @@ public class Task {
     public Task() {}
 
     @Ignore
-    public Task(String title, String description, long createdAt) {
+    public Task(String title, String description, long startTime) {
+        this.title = title;
+        this.description = description;
+        this.startTime = startTime;
+        this.createdAt = System.currentTimeMillis();
+        this.isCompleted = false; // 默认未完成
+        this.sortIndex = 0; // 默认排序索引
+    }
+
+    @Ignore
+    public Task(long id, String title, String description, long createdAt,
+                long sortIndex, boolean isCompleted, long startTime) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.createdAt = createdAt;
-        this.isCompleted = false; // 默认未完成
-        this.startTime = 0; // 默认无开始时间
+        this.sortIndex = sortIndex;
+        this.isCompleted = isCompleted;
+        this.startTime = startTime;
     }
 
     public long getId() { return id; }
@@ -55,6 +68,32 @@ public class Task {
     
     public long getStartTime() { return startTime; }
     public void setStartTime(long startTime) { this.startTime = startTime; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return id == task.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", createdAt=" + createdAt +
+                ", sortIndex=" + sortIndex +
+                ", isCompleted=" + isCompleted +
+                ", startTime=" + startTime +
+                '}';
+    }
 }
 
 

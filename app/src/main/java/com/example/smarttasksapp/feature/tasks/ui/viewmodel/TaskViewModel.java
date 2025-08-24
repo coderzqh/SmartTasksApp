@@ -1,268 +1,305 @@
 package com.example.smarttasksapp.feature.tasks.ui.viewmodel;
 
 import android.app.Application;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
-import com.example.smarttasksapp.core.manager.BaseManager;
-import com.example.smarttasksapp.core.viewmodel.BaseViewModel;
+import com.example.smarttasksapp.core.lifecycle.AppLifecycleManager;
+import com.example.smarttasksapp.core.lifecycle.LifecycleScope;
 import com.example.smarttasksapp.feature.tasks.constants.TaskConstants;
 import com.example.smarttasksapp.feature.tasks.data.ITaskRepository;
-import com.example.smarttasksapp.feature.tasks.domain.Task;
-import com.example.smarttasksapp.feature.tasks.manager.TaskManager;
-import com.example.smarttasksapp.feature.tasks.state.TaskState;
+import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
+import com.example.smarttasksapp.feature.tasks.domain.usecase.TaskUseCase;
 
 import java.util.List;
 
 /**
  * 任务视图模型
- * 继承BaseViewModel，使用依赖注入和状态管理模式
+ * 使用新的架构，直接管理状态，通过TaskUseCase处理业务逻辑
  */
-public class TaskViewModel extends BaseViewModel {
-    private static final String MODULE_NAME = "Tasks";
+public class TaskViewModel extends AndroidViewModel {
     private static final String TAG = "TaskViewModel";
-    private final TaskState taskState;
-    private final ITaskRepository repository;
-    private final TaskManager taskManager;
-
+    
+    // 状态管理
+    private final MutableLiveData<List<TaskEntity>> tasks = new MutableLiveData<>();
+    private final MutableLiveData<TaskEntity> selectedTask = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
+    private final MutableLiveData<String> error = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isOperationSuccessful = new MutableLiveData<>(false);
+    
+    // 业务逻辑
+    private final TaskUseCase taskUseCase;
+    private final LifecycleScope scope;
+    
     public TaskViewModel(@NonNull Application application) {
-        super(application, MODULE_NAME, new TaskState());
-        this.taskState = (TaskState) getState();
-        this.repository = appModule.getSingleton(ITaskRepository.class);
-        this.taskManager = new TaskManager(application);
+        super(application);
         
-        if (this.repository == null) {
-            throw new IllegalStateException("ITaskRepository not registered in AppModule");
-        }
+        // 通过生命周期管理器获取依赖
+        AppLifecycleManager lifecycleManager = AppLifecycleManager.getInstance();
         
-        // 初始化时观察任务列表
+        // 创建ViewModel作用域
+        this.scope = lifecycleManager.createScope("TaskViewModel_" + System.currentTimeMillis());
+        
+        // 获取依赖
+        ITaskRepository repository = lifecycleManager.getDependency(ITaskRepository.class);
+        this.taskUseCase = new TaskUseCase(repository);
+        
+        // 观察任务列表
         observeTasks();
+        
+        Log.d(TAG, "TaskViewModel initialized successfully");
     }
-
+    
     // 任务数据访问方法
-    public LiveData<List<Task>> getTasks() {
-        return taskState.getTasks();
+    public LiveData<List<TaskEntity>> getTasks() {
+        return tasks;
     }
-
-    public LiveData<Task> getSelectedTask() {
-        return taskState.getSelectedTask();
+    
+    public LiveData<TaskEntity> getSelectedTask() {
+        return selectedTask;
     }
-
+    
+    public LiveData<Boolean> getIsLoading() {
+        return isLoading;
+    }
+    
+    public LiveData<String> getError() {
+        return error;
+    }
+    
+    public LiveData<Boolean> getIsOperationSuccessful() {
+        return isOperationSuccessful;
+    }
+    
     // 任务操作方法
+    @RequiresApi(api = Build.VERSION_CODES.S)
     public void addTask(String title, String description, long startTime) {
-        if (title == null || title.trim().isEmpty()) {
-            taskState.setError(TaskConstants.TEXT_TITLE_EMPTY);
-            return;
-        }
-
-        taskState.setLoading(true);
-        taskState.clearError();
+        clearError();
+        setLoading(true);
         
-        Log.d(TAG,"Adding task: " + title);
+        Log.d(TAG, "Adding task: " + title);
         
-        taskManager.addTaskAsync(title.trim(), description != null ? description.trim() : null, startTime)
+        // 创建TaskEntity实例
+        TaskEntity taskEntity = new TaskEntity(title, description, startTime);
+        
+        taskUseCase.addTask(taskEntity)
                 .thenAccept(taskId -> {
                     if (taskId > 0) {
-                        taskState.setOperationSuccessful(true);
-                        sendSuccessEvent("addTask", taskId);
-                        Log.d(TAG,"Task added successfully with ID: " + taskId);
+                        setOperationSuccessful(true);
+                        Log.d(TAG, "Task added successfully with ID: " + taskId);
                     } else {
                         String errorMsg = "添加任务失败：无法获取任务ID";
-                        taskState.setError(errorMsg);
-                        sendErrorEvent("addTask", errorMsg);
-                        Log.e(TAG,"Failed to add task: " + errorMsg);
+                        setError(errorMsg);
+                        Log.e(TAG, "Failed to add task: " + errorMsg);
                     }
                 })
                 .exceptionally(throwable -> {
-                    String errorMsg = TaskConstants.ERROR_ADD_TASK + throwable.getMessage();
-                    taskState.setError(errorMsg);
-                    sendErrorEvent("addTask", throwable.getMessage());
-                    Log.e(TAG,"Error adding task: " + throwable.getMessage(), throwable);
+                    String errorMsg = "添加任务失败：" + throwable.getMessage();
+                    setError(errorMsg);
+                    Log.e(TAG, "Error adding task: " + throwable.getMessage(), throwable);
                     return null;
                 })
-                .whenComplete((result, throwable) -> taskState.setLoading(false));
+                .whenComplete((result, throwable) -> setLoading(false));
     }
-
-    public void reorder(long fromTaskId, long toTaskId, boolean placeAbove) {
-        Log.d(TAG,"Reordering tasks: " + fromTaskId + " -> " + toTaskId + " (placeAbove: " + placeAbove + ")");
-        
-        taskManager.reorderTasksAsync(fromTaskId, toTaskId, placeAbove)
-                .thenAccept(success -> {
-                    if (success) {
-                        sendSuccessEvent("reorder", "Tasks reordered successfully");
-                        Log.d(TAG,"Tasks reordered successfully");
-                    }
-                })
-                .exceptionally(throwable -> {
-                    String errorMsg = TaskConstants.ERROR_REORDER + throwable.getMessage();
-                    taskState.setError(errorMsg);
-                    sendErrorEvent("reorder", throwable.getMessage());
-                    Log.e(TAG,"Error reordering tasks: " + throwable.getMessage(), throwable);
-                    return null;
-                });
-    }
-
-    public void persistOrder(List<Task> ordered) {
-        if (ordered == null || ordered.isEmpty()) {
-            Log.e("","Cannot persist order: ordered list is null or empty");
-            return;
-        }
-
-        Log.d(TAG,"Persisting order for " + ordered.size() + " tasks");
-        
-        taskManager.persistTaskOrderAsync(ordered)
-                .thenAccept(success -> {
-                    if (success) {
-                        sendSuccessEvent("persistOrder", "Order persisted successfully");
-                        Log.d(TAG,"Task order persisted successfully");
-                    }
-                })
-                .exceptionally(throwable -> {
-                    String errorMsg = TaskConstants.ERROR_PERSIST_ORDER + throwable.getMessage();
-                    taskState.setError(errorMsg);
-                    sendErrorEvent("persistOrder", throwable.getMessage());
-                    Log.e(TAG,"Error persisting task order: " + throwable.getMessage(), throwable);
-                    return null;
-                });
-    }
-
+    
+    @RequiresApi(api = Build.VERSION_CODES.S)
     public void updateTask(long taskId, String title, String description, long startTime) {
-        if (title == null || title.trim().isEmpty()) {
-            taskState.setError(TaskConstants.TEXT_TITLE_EMPTY);
-            return;
-        }
-
-        taskState.setLoading(true);
-        taskState.clearError();
-
-        taskManager.updateTaskAsync(taskId, title.trim(), description != null ? description.trim() : null, startTime)
+        clearError();
+        setLoading(true);
+        
+        Log.d(TAG, "Updating task: " + taskId);
+        
+        taskUseCase.updateTask(taskId, title, description, startTime)
                 .thenAccept(success -> {
                     if (success) {
-                        taskState.setOperationSuccessful(true);
-                        sendSuccessEvent("updateTask", taskId);
+                        setOperationSuccessful(true);
+                        Log.d(TAG, "Task updated successfully: " + taskId);
                     }
                 })
                 .exceptionally(throwable -> {
-                    String errorMsg = TaskConstants.ERROR_UPDATE_TASK + throwable.getMessage();
-                    taskState.setError(errorMsg);
-                    sendErrorEvent("updateTask", throwable.getMessage());
+                    String errorMsg = "更新任务失败：" + throwable.getMessage();
+                    setError(errorMsg);
+                    Log.e(TAG, "Error updating task: " + throwable.getMessage(), throwable);
                     return null;
                 })
-                .whenComplete((result, throwable) -> taskState.setLoading(false));
+                .whenComplete((result, throwable) -> setLoading(false));
     }
     
-    public void updateTaskCompletedStatus(long taskId, boolean isCompleted) {
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    public void deleteTask(long taskId) {
+        clearError();
+        setLoading(true);
         
-        taskManager.updateTaskStatusAsync(taskId, isCompleted)
+        Log.d(TAG, "Deleting task: " + taskId);
+        
+        taskUseCase.deleteTask(taskId)
                 .thenAccept(success -> {
                     if (success) {
-                        sendSuccessEvent("updateTaskStatus", "Status updated successfully");
+                        setOperationSuccessful(true);
+                        Log.d(TAG, "Task deleted successfully: " + taskId);
                     }
                 })
                 .exceptionally(throwable -> {
-                    String errorMsg = TaskConstants.ERROR_UPDATE_STATUS + throwable.getMessage();
-                    taskState.setError(errorMsg);
-                    sendErrorEvent("updateTaskStatus", throwable.getMessage());
+                    String errorMsg = "删除任务失败：" + throwable.getMessage();
+                    setError(errorMsg);
+                    Log.e(TAG, "Error deleting task: " + throwable.getMessage(), throwable);
+                    return null;
+                })
+                .whenComplete((result, throwable) -> setLoading(false));
+    }
+    
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    public void updateTaskStatus(long taskId, boolean isCompleted) {
+        clearError();
+        
+        Log.d(TAG, "Updating task status: " + taskId + " -> " + isCompleted);
+
+        taskUseCase.updateTaskStatus(taskId, isCompleted)
+                .thenAccept(success -> {
+                    if (success) {
+                        Log.d(TAG, "Task status updated successfully: " + taskId);
+                    }
+                })
+                .exceptionally(throwable -> {
+                    String errorMsg = "更新任务状态失败：" + throwable.getMessage();
+                    setError(errorMsg);
+                    Log.e(TAG, "Error updating task status: " + throwable.getMessage(), throwable);
                     return null;
                 });
     }
     
+    @RequiresApi(api = Build.VERSION_CODES.S)
     public void updateTaskStartTime(long taskId, long startTime) {
-
-        taskManager.executeAsync(new BaseManager.AsyncOperation<Boolean>() {
-            @Override
-            public Boolean execute() throws Exception {
-                repository.updateTaskStartTime(taskId, startTime);
-                return Boolean.TRUE;
-            }
-        }).thenAccept(success -> {
-            if (success) {
-                sendSuccessEvent("updateTaskStartTime", "Start time updated successfully");
-            }
-        }).exceptionally(throwable -> {
-            String errorMsg = TaskConstants.ERROR_UPDATE_TIME + throwable.getMessage();
-            taskState.setError(errorMsg);
-            sendErrorEvent("updateTaskStartTime", throwable.getMessage());;
-            return null;
-        });
-    }
-    
-    public void deleteTask(long taskId) {
-        taskState.setLoading(true);
-        taskState.clearError();
-
+        clearError();
         
-        taskManager.deleteTaskAsync(taskId)
+        Log.d(TAG, "Updating task start time: " + taskId + " -> " + startTime);
+        
+        taskUseCase.updateTaskStartTime(taskId, startTime)
                 .thenAccept(success -> {
                     if (success) {
-                        taskState.setOperationSuccessful(true);
-                        sendSuccessEvent("deleteTask", taskId);
+                        Log.d(TAG, "Task start time updated successfully: " + taskId);
                     }
                 })
                 .exceptionally(throwable -> {
-                    String errorMsg = TaskConstants.ERROR_DELETE_TASK + throwable.getMessage();
-                    taskState.setError(errorMsg);
-                    sendErrorEvent("deleteTask", throwable.getMessage());
+                    String errorMsg = "更新任务开始时间失败：" + throwable.getMessage();
+                    setError(errorMsg);
+                    Log.e(TAG, "Error updating task start time: " + throwable.getMessage(), throwable);
                     return null;
+                });
+    }
+    
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    public void persistTaskOrder(List<TaskEntity> orderedTasks) {
+        if (orderedTasks == null || orderedTasks.isEmpty()) {
+            Log.e(TAG, "Cannot persist order: ordered list is null or empty");
+            return;
+        }
+        
+        clearError();
+        
+        Log.d(TAG, "Persisting order for " + orderedTasks.size() + " tasks");
+        
+        taskUseCase.persistTaskOrder(orderedTasks)
+                .thenAccept(success -> {
+                    if (success) {
+                        Log.d(TAG, "Task order persisted successfully");
+                    }
                 })
-                .whenComplete((result, throwable) -> taskState.setLoading(false));
+                .exceptionally(throwable -> {
+                    String errorMsg = "持久化任务顺序失败：" + throwable.getMessage();
+                    setError(errorMsg);
+                    Log.e(TAG, "Error persisting task order: " + throwable.getMessage(), throwable);
+                    return null;
+                });
     }
-
+    
     // 状态管理方法
-    public void setSelectedTask(Task task) {
-        taskState.setSelectedTask(task);
+    public void setSelectedTask(TaskEntity task) {
+        selectedTask.setValue(task);
+        Log.d(TAG, "Selected task: " + (task != null ? task.getId() : "null"));
     }
-
+    
     public void refreshTasks() {
-        taskState.setRefreshing(true);
-        
-        // 重新观察任务列表
+        Log.d(TAG, "Refreshing tasks");
         observeTasks();
-        
-        // 延迟重置刷新状态，给UI一些时间显示刷新指示器
-        taskState.setRefreshing(false);
     }
-
+    
+    public void clearError() {
+        error.setValue(null);
+    }
+    
+    public void clearSuccess() {
+        isOperationSuccessful.setValue(false);
+    }
+    
     // 统计信息方法
     public int getTotalTaskCount() {
-        return taskState.getTotalTaskCount();
+        List<TaskEntity> currentTasks = tasks.getValue();
+        return currentTasks != null ? currentTasks.size() : 0;
     }
-
+    
     public int getCompletedTaskCount() {
-        return taskState.getCompletedTaskCount();
+        List<TaskEntity> currentTasks = tasks.getValue();
+        if (currentTasks == null) return 0;
+        
+        return (int) currentTasks.stream()
+                .filter(TaskEntity::isCompleted)
+                .count();
     }
-
+    
     public int getPendingTaskCount() {
-        return taskState.getPendingTaskCount();
+        return getTotalTaskCount() - getCompletedTaskCount();
     }
-
+    
     public double getCompletionRate() {
-        return taskState.getCompletionRate();
+        int total = getTotalTaskCount();
+        if (total == 0) return 0.0;
+        return (double) getCompletedTaskCount() / total * 100;
     }
-
+    
     // 私有方法
     private void observeTasks() {
-        // 观察Repository返回的任务列表LiveData
+        // 从Repository获取任务列表
+        ITaskRepository repository = AppLifecycleManager.getInstance().getDependency(ITaskRepository.class);
         repository.observeAll().observeForever(tasks -> {
             if (tasks != null) {
-                taskState.setTasks(tasks);
-                
-                // 发送数据变更事件
-                sendDataChangedEvent("Task", "listUpdated", tasks);
+                this.tasks.setValue(tasks);
+                Log.d(TAG, "Tasks updated: " + tasks.size() + " tasks");
             } else {
-                taskState.setTasks(null);
+                this.tasks.setValue(null);
+                Log.d(TAG, "Tasks cleared");
             }
         });
     }
-
+    
+    private void setLoading(boolean loading) {
+        isLoading.setValue(loading);
+    }
+    
+    private void setError(String errorMessage) {
+        error.setValue(errorMessage);
+    }
+    
+    private void setOperationSuccessful(boolean successful) {
+        isOperationSuccessful.setValue(successful);
+    }
+    
     @Override
-    protected void cleanup() {
-        // 清理任务管理器资源
-        if (taskManager != null) {
-            // TaskManager继承自BaseManager，不需要手动清理
+    protected void onCleared() {
+        super.onCleared();
+        
+        // 销毁作用域
+        if (scope != null) {
+            AppLifecycleManager.getInstance().destroyScope(scope.getName());
         }
+        
+        Log.d(TAG, "TaskViewModel cleared");
     }
 }
 

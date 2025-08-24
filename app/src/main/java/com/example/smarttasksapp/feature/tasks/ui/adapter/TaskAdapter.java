@@ -14,13 +14,13 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.smarttasksapp.R;
-import com.example.smarttasksapp.feature.tasks.domain.Task;
+import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
 import com.example.smarttasksapp.feature.tasks.ui.view.TaskDetailBottomSheet;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.Objects;
 
-public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
+public class TaskAdapter extends ListAdapter<TaskEntity, TaskAdapter.TaskViewHolder> {
 
     private OnTaskStatusChangeListener statusChangeListener;
     private OnTaskClickListener taskClickListener;
@@ -30,7 +30,7 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
     }
 
     public interface OnTaskClickListener {
-        void onTaskClick(Task task);
+        void onTaskClick(TaskEntity task);
     }
 
     public TaskAdapter() {
@@ -45,14 +45,14 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
         this.taskClickListener = listener;
     }
 
-    private static final DiffUtil.ItemCallback<Task> DIFF = new DiffUtil.ItemCallback<>() {
+    private static final DiffUtil.ItemCallback<TaskEntity> DIFF = new DiffUtil.ItemCallback<>() {
         @Override
-        public boolean areItemsTheSame(@NonNull Task oldItem, @NonNull Task newItem) {
+        public boolean areItemsTheSame(@NonNull TaskEntity oldItem, @NonNull TaskEntity newItem) {
             return oldItem.getId() == newItem.getId();
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Task oldItem, @NonNull Task newItem) {
+        public boolean areContentsTheSame(@NonNull TaskEntity oldItem, @NonNull TaskEntity newItem) {
             // 优化比较逻辑，只比较关键字段
             return Objects.equals(oldItem.getTitle(), newItem.getTitle()) &&
                    Objects.equals(oldItem.getDescription(), newItem.getDescription()) &&
@@ -71,7 +71,7 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
-        Task task = getItem(position);
+        TaskEntity task = getItem(position);
         holder.bind(task);
     }
 
@@ -93,7 +93,7 @@ public class TaskAdapter extends ListAdapter<Task, TaskAdapter.TaskViewHolder> {
             completeText = itemView.findViewById(R.id.tvCompleteText);
         }
 
-        void bind(Task task) {
+        void bind(TaskEntity task) {
             // 设置任务内容
             title.setText(task.getTitle());
             desc.setText(task.getDescription() == null ? "" : task.getDescription());

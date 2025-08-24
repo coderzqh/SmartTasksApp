@@ -3,7 +3,7 @@ package com.example.smarttasksapp.feature.tasks.event;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.smarttasksapp.feature.tasks.domain.Task;
+import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
 
 import java.util.List;
 
@@ -51,13 +51,13 @@ public class TaskEventBus {
      * 任务添加事件
      */
     public static class TaskAddedEvent extends TaskEvent {
-        private final Task task;
+        private final TaskEntity task;
 
-        public TaskAddedEvent(Task task) {
+        public TaskAddedEvent(TaskEntity task) {
             this.task = task;
         }
 
-        public Task getTask() {
+        public TaskEntity getTask() {
             return task;
         }
     }
@@ -66,13 +66,13 @@ public class TaskEventBus {
      * 任务更新事件
      */
     public static class TaskUpdatedEvent extends TaskEvent {
-        private final Task task;
+        private final TaskEntity task;
 
-        public TaskUpdatedEvent(Task task) {
+        public TaskUpdatedEvent(TaskEntity task) {
             this.task = task;
         }
 
-        public Task getTask() {
+        public TaskEntity getTask() {
             return task;
         }
     }
@@ -117,13 +117,13 @@ public class TaskEventBus {
      * 任务列表更新事件
      */
     public static class TaskListUpdatedEvent extends TaskEvent {
-        private final List<Task> tasks;
+        private final List<TaskEntity> tasks;
 
-        public TaskListUpdatedEvent(List<Task> tasks) {
+        public TaskListUpdatedEvent(List<TaskEntity> tasks) {
             this.tasks = tasks;
         }
 
-        public List<Task> getTasks() {
+        public List<TaskEntity> getTasks() {
             return tasks;
         }
     }

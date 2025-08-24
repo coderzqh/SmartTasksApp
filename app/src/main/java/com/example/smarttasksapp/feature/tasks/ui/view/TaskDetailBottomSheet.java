@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Layout;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -19,7 +20,7 @@ import androidx.core.util.Consumer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.smarttasksapp.R;
-import com.example.smarttasksapp.feature.tasks.domain.Task;
+import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -45,7 +46,7 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
 
-    public static TaskDetailBottomSheet newInstance(Task task) {
+    public static TaskDetailBottomSheet newInstance(TaskEntity task) {
         Bundle args = new Bundle();
         args.putLong(ARG_ID, task.getId());
         args.putString(ARG_TITLE, task.getTitle());
@@ -149,28 +150,9 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
             viewHolder.btnEdit.setVisibility(View.GONE);
             viewHolder.btnSave.setVisibility(View.VISIBLE);
         });
-
-        viewHolder.btnSave.setOnClickListener(v -> {
-            if (getArguments() == null) return;
-
-            long id = getArguments().getLong(ARG_ID, 0);
-            if (id == 0) return;
-
-            String newTitle = viewHolder.editTitleField.getText().toString().trim();
-            String newDesc = viewHolder.editDescField.getText().toString().trim();
-
-            new ViewModelProvider(requireActivity())
-                    .get(com.example.smarttasksapp.feature.tasks.ui.viewmodel.TaskViewModel.class)
-                    .updateTask(id, newTitle, newDesc, selectedStartTime);
-
-            viewHolder.viewTitleText.setText(newTitle);
-            viewHolder.viewDescText.setText(newDesc);
-            viewHolder.viewStartTimeText.setText(selectedStartTime > 0 ? dateFormat.format(new Date(selectedStartTime)) : "未设置");
-
-            toggleEdit(viewHolder.root, false);
-            viewHolder.btnSave.setVisibility(View.GONE);
-            viewHolder.btnEdit.setVisibility(View.VISIBLE);
-        });
+        
+        // 添加保存按钮点击事件
+        viewHolder.btnSave.setOnClickListener(v -> saveTaskChanges(viewHolder));
     }
 
     // ---------- 底部弹窗行为 ----------
@@ -216,6 +198,47 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
             editStartTime.setText(dateFormat.format(new Date(selectedStartTime)));
             editStartTime.setTextColor(requireContext().getColor(android.R.color.black));
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
+    }
+
+    // ---------- 保存任务更改 ----------
+    private void saveTaskChanges(ViewHolder viewHolder) {
+        if (getArguments() == null) return;
+        long taskId = getArguments().getLong(ARG_ID, 0);
+        if (taskId <= 0) return;
+
+        String newTitle = viewHolder.editTitleField.getText().toString().trim();
+        String newDescription = viewHolder.editDescField.getText().toString().trim();
+        
+        if (TextUtils.isEmpty(newTitle)) {
+            Toast.makeText(requireContext(), "标题不能为空", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 使用ViewModel更新任务
+        new ViewModelProvider(requireActivity())
+                .get(com.example.smarttasksapp.feature.tasks.ui.viewmodel.TaskViewModel.class)
+                .updateTask(taskId, newTitle, newDescription, selectedStartTime);
+        
+        // 如果时间有变化，也更新时间
+        if (selectedStartTime > 0) {
+            new ViewModelProvider(requireActivity())
+                    .get(com.example.smarttasksapp.feature.tasks.ui.viewmodel.TaskViewModel.class)
+                    .updateTaskStartTime(taskId, selectedStartTime);
+        }
+
+        // 切换回查看模式
+        toggleEdit(viewHolder.root, false);
+        viewHolder.btnEdit.setVisibility(View.VISIBLE);
+        viewHolder.btnSave.setVisibility(View.GONE);
+        
+        // 更新显示的内容
+        viewHolder.viewTitleText.setText(newTitle);
+        viewHolder.viewDescText.setText(newDescription);
+        if (selectedStartTime > 0) {
+            viewHolder.viewStartTimeText.setText(dateFormat.format(new Date(selectedStartTime)));
+        }
+        
+        Toast.makeText(requireContext(), "任务已保存", Toast.LENGTH_SHORT).show();
     }
 
     // ---------- 删除任务 ----------
