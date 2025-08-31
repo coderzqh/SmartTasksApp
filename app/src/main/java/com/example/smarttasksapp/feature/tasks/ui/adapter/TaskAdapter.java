@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.smarttasksapp.R;
 import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
 import com.example.smarttasksapp.feature.tasks.ui.view.TaskDetailBottomSheet;
+import com.example.smarttasksapp.core.constants.Constants;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.Objects;
@@ -120,16 +121,16 @@ public class TaskAdapter extends ListAdapter<TaskEntity, TaskAdapter.TaskViewHol
                 title.setTextColor(Color.DKGRAY);
                 desc.setTextColor(Color.GRAY);
                 completeIcon.setImageResource(android.R.drawable.ic_menu_revert);
-                completeText.setText("未完成");
-                leftSwipeBackground.setBackgroundColor(Color.parseColor("#FF9800")); // 橙色
+                completeText.setText(Constants.INCOMPLETE);
+                leftSwipeBackground.setBackgroundColor(Color.parseColor(Constants.COLOR_COMPLETED)); // 橙色
             } else {
                 // 未完成：正常样式
                 taskCard.setCardBackgroundColor(Color.WHITE);
                 title.setTextColor(Color.BLACK);
                 desc.setTextColor(Color.DKGRAY);
                 completeIcon.setImageResource(android.R.drawable.ic_menu_send);
-                completeText.setText("完成");
-                leftSwipeBackground.setBackgroundColor(Color.parseColor("#4CAF50")); // 绿色
+                completeText.setText(Constants.COMPLETE);
+                leftSwipeBackground.setBackgroundColor(Color.parseColor(Constants.COLOR_PENDING)); // 绿色
             }
         }
     }

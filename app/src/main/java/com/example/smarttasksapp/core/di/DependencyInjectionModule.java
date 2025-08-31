@@ -2,7 +2,10 @@ package com.example.smarttasksapp.core.di;
 
 import android.content.Context;
 
+import com.example.smarttasksapp.feature.reminder.service.IReminderService;
+import com.example.smarttasksapp.feature.reminder.service.impl.ReminderService;
 import com.example.smarttasksapp.feature.tasks.data.ITaskRepository;
+import com.example.smarttasksapp.feature.tasks.domain.TaskReminderManager;
 import com.example.smarttasksapp.infrastructure.database.AppDatabase;
 import com.example.smarttasksapp.infrastructure.repository.TaskRepositoryImpl;
 
@@ -32,5 +35,17 @@ public class DependencyInjectionModule {
     public ITaskRepository provideTaskRepository(@ApplicationContext Context context) {
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         return new TaskRepositoryImpl(context, executorService);
+    }
+    
+    @Provides
+    @Singleton
+    public IReminderService provideReminderService(@ApplicationContext Context context) {
+        return new ReminderService(context);
+    }
+    
+    @Provides
+    @Singleton
+    public TaskReminderManager provideTaskReminderManager(IReminderService reminderService) {
+        return new TaskReminderManager(reminderService);
     }
 }

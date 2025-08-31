@@ -11,8 +11,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 
-import com.example.smarttasksapp.feature.tasks.constants.TaskConstants;
-import com.example.smarttasksapp.feature.tasks.data.ITaskRepository;
+import com.example.smarttasksapp.core.constants.Constants;
 import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
 import com.example.smarttasksapp.feature.tasks.domain.usecase.TaskUseCase;
 
@@ -97,9 +96,9 @@ public class TaskViewModel extends AndroidViewModel {
                     }
                 })
                 .exceptionally(throwable -> {
-                    String errorMsg = "添加任务失败：" + throwable.getMessage();
+                    String errorMsg = Constants.ADD_TASK_FAILED + throwable.getMessage();
                     setError(errorMsg);
-                    Log.e(TAG, "Error adding task: " + throwable.getMessage(), throwable);
+                    Log.e(TAG, Constants.ERROR_ADDING_TASK + throwable.getMessage(), throwable);
                     return null;
                 })
                 .whenComplete((result, throwable) -> setLoading(false));
@@ -120,9 +119,9 @@ public class TaskViewModel extends AndroidViewModel {
                     }
                 })
                 .exceptionally(throwable -> {
-                    String errorMsg = "更新任务失败：" + throwable.getMessage();
+                    String errorMsg = Constants.UPDATE_TASK_FAILED + throwable.getMessage();
                     setError(errorMsg);
-                    Log.e(TAG, "Error updating task: " + throwable.getMessage(), throwable);
+                    Log.e(TAG, Constants.ERROR_UPDATING_TASK + throwable.getMessage(), throwable);
                     return null;
                 })
                 .whenComplete((result, throwable) -> setLoading(false));
@@ -143,9 +142,9 @@ public class TaskViewModel extends AndroidViewModel {
                     }
                 })
                 .exceptionally(throwable -> {
-                    String errorMsg = "删除任务失败：" + throwable.getMessage();
+                    String errorMsg = Constants.DELETE_TASK_FAILED + throwable.getMessage();
                     setError(errorMsg);
-                    Log.e(TAG, "Error deleting task: " + throwable.getMessage(), throwable);
+                    Log.e(TAG, Constants.ERROR_DELETING_TASK + throwable.getMessage(), throwable);
                     return null;
                 })
                 .whenComplete((result, throwable) -> setLoading(false));
@@ -164,9 +163,9 @@ public class TaskViewModel extends AndroidViewModel {
                     }
                 })
                 .exceptionally(throwable -> {
-                    String errorMsg = "更新任务状态失败：" + throwable.getMessage();
+                    String errorMsg = Constants.UPDATE_TASK_STATUS_FAILED + throwable.getMessage();
                     setError(errorMsg);
-                    Log.e(TAG, "Error updating task status: " + throwable.getMessage(), throwable);
+                    Log.e(TAG, Constants.ERROR_UPDATING_TASK_STATUS + throwable.getMessage(), throwable);
                     return null;
                 });
     }
@@ -184,9 +183,9 @@ public class TaskViewModel extends AndroidViewModel {
                     }
                 })
                 .exceptionally(throwable -> {
-                    String errorMsg = "更新任务开始时间失败：" + throwable.getMessage();
+                    String errorMsg = Constants.UPDATE_TASK_START_TIME_FAILED + throwable.getMessage();
                     setError(errorMsg);
-                    Log.e(TAG, "Error updating task start time: " + throwable.getMessage(), throwable);
+                    Log.e(TAG, Constants.ERROR_UPDATING_TASK_START_TIME + throwable.getMessage(), throwable);
                     return null;
                 });
     }
@@ -209,9 +208,9 @@ public class TaskViewModel extends AndroidViewModel {
                     }
                 })
                 .exceptionally(throwable -> {
-                    String errorMsg = "持久化任务顺序失败：" + throwable.getMessage();
+                    String errorMsg = Constants.PERSIST_TASK_ORDER_FAILED + throwable.getMessage();
                     setError(errorMsg);
-                    Log.e(TAG, "Error persisting task order: " + throwable.getMessage(), throwable);
+                    Log.e(TAG, Constants.ERROR_PERSISTING_TASK_ORDER + throwable.getMessage(), throwable);
                     return null;
                 });
     }

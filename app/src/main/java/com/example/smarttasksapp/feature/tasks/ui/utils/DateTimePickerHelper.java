@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.widget.TextView;
 
+import com.example.smarttasksapp.core.constants.Constants;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -84,7 +85,7 @@ public class DateTimePickerHelper {
 
     public String formatTime(long time) {
         if (time <= 0) {
-            return "未设置";
+            return Constants.NOT_SET;
         }
         return dateFormat.format(new Date(time));
     }

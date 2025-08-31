@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.smarttasksapp.R;
 import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
+import com.example.smarttasksapp.core.constants.Constants;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -98,8 +99,8 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
             viewHolder.editStartTimeField.setText(dateFormat.format(new Date(startTime)));
             selectedStartTime = startTime;
         } else {
-            viewHolder.viewStartTimeText.setText("未设置");
-            viewHolder.editStartTimeField.setText("选择时间");
+            viewHolder.viewStartTimeText.setText(Constants.NOT_SET);
+            viewHolder.editStartTimeField.setText(Constants.SELECT_TIME);
         }
 
         viewHolder.editTitleField.setText(title);
@@ -128,7 +129,7 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
                     editTitle.setText(lastValidTitle[0]);
                     editTitle.setSelection(editTitle.length());
                     restoring[0] = false;
-                    Toast.makeText(requireContext(), "标题最多两行", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), Constants.TITLE_MAX_TWO_LINES, Toast.LENGTH_SHORT).show();
                 } else {
                     lastValidTitle[0] = editTitle.getText().toString();
                 }
@@ -210,7 +211,7 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
         String newDescription = viewHolder.editDescField.getText().toString().trim();
         
         if (TextUtils.isEmpty(newTitle)) {
-            Toast.makeText(requireContext(), "标题不能为空", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), Constants.TITLE_CANNOT_BE_EMPTY, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -238,16 +239,16 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
             viewHolder.viewStartTimeText.setText(dateFormat.format(new Date(selectedStartTime)));
         }
         
-        Toast.makeText(requireContext(), "任务已保存", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), Constants.TASK_SAVED, Toast.LENGTH_SHORT).show();
     }
 
     // ---------- 删除任务 ----------
     private void showDeleteConfirmDialog() {
         new AlertDialog.Builder(requireContext())
-                .setTitle("确认删除")
-                .setMessage("确定要删除这个任务吗？删除后无法恢复。")
-                .setPositiveButton("确认删除", (dialog, which) -> deleteTask())
-                .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+                .setTitle(Constants.CONFIRM_DELETE_TITLE)
+                .setMessage(Constants.CONFIRM_DELETE_MESSAGE)
+                .setPositiveButton(Constants.CONFIRM_DELETE, (dialog, which) -> deleteTask())
+                .setNegativeButton(Constants.CANCEL, (dialog, which) -> dialog.dismiss())
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
@@ -262,7 +263,7 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
                 .deleteTask(taskId);
 
         dismiss();
-        Toast.makeText(requireContext(), "任务已删除", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), Constants.TASK_DELETED, Toast.LENGTH_SHORT).show();
     }
 
     // ---------- 编辑模式切换 ----------

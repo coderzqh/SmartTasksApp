@@ -29,6 +29,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.smarttasksapp.R;
 import com.example.smarttasksapp.feature.tasks.ui.viewmodel.TaskViewModel;
+import com.example.smarttasksapp.core.constants.Constants;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -47,10 +48,10 @@ public class AddTaskBottomSheet extends BottomSheetDialogFragment {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
     
     // 缓存相关常量
-    private static final String PREF_NAME = "add_task_cache";
-    private static final String KEY_TITLE = "cached_title";
-    private static final String KEY_DESCRIPTION = "cached_description";
-    private static final String KEY_START_TIME = "cached_start_time";
+    private static final String PREF_NAME = Constants.PREF_NAME;
+    private static final String KEY_TITLE = Constants.KEY_TITLE;
+    private static final String KEY_DESCRIPTION = Constants.KEY_DESCRIPTION;
+    private static final String KEY_START_TIME = Constants.KEY_START_TIME;
     
     private EditText mEtTitle;
     private EditText mEtDesc;
@@ -126,7 +127,7 @@ public class AddTaskBottomSheet extends BottomSheetDialogFragment {
                     restoring[0] = false;
                     if (sTitleWarnCount < 2) {
                         sTitleWarnCount++;
-                        Toast.makeText(requireContext(), "标题最多两行", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), Constants.TITLE_MAX_TWO_LINES, Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     lastValid[0] = mEtTitle.getText().toString();
@@ -162,7 +163,7 @@ public class AddTaskBottomSheet extends BottomSheetDialogFragment {
             String desc = mEtDesc.getText().toString().trim();
 
             if (TextUtils.isEmpty(title)) {
-                mEtTitle.setError("标题不能为空");
+                mEtTitle.setError(Constants.TITLE_CANNOT_BE_EMPTY);
                 mEtTitle.requestFocus();
                 return;
             }

@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.smarttasksapp.core.constants.Constants;
 import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
 
 import java.util.List;
@@ -131,12 +132,12 @@ public class SwipeToCompleteCallback extends ItemTouchHelper.Callback {
                     if (position != RecyclerView.NO_POSITION) {
                         TaskEntity task = adapter.getCurrentList().get(position);
                         if (task.isCompleted()) {
-                            c.drawText("↺", iconX, iconY, paint); // 未完成图标
+                            c.drawText(Constants.ICON_UNDO, iconX, iconY, paint); // 未完成图标
                         } else {
-                            c.drawText("✓", iconX, iconY, paint); // 完成图标
+                            c.drawText(Constants.ICON_CHECK, iconX, iconY, paint); // 完成图标
                         }
                     } else {
-                        c.drawText("↺", iconX, iconY, paint); // 默认未完成图标
+                        c.drawText(Constants.ICON_UNDO, iconX, iconY, paint); // 默认未完成图标
                     }
                 }
             }

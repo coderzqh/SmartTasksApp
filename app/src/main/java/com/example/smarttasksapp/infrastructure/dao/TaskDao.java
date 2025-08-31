@@ -43,6 +43,9 @@ public interface TaskDao {
     
     @Query("DELETE FROM tasks WHERE id = :taskId")
     void deleteTask(long taskId);
+    
+    @Query("SELECT * FROM tasks WHERE id = :taskId")
+    Task getTaskById(long taskId);
 
     // 批量更新排序索引
     @Transaction

@@ -33,14 +33,31 @@ public class ReminderManager {
     }
 
     /**
+     * 生成 requestCode
+     * @param taskId 任务ID
+     * @return requestCode
+     */
+    private int generateRequestCode(long taskId) {
+        // 使用哈希算法确保唯一性，同时保证同一个ID转换的值相同
+        // 通过位运算将 long 转换为 int，并处理可能的负值
+        int hashCode = Long.hashCode(taskId);
+        // 确保 requestCode 为正数，避免潜在问题
+        return hashCode & 0x7FFFFFFF;
+    }
+
+    /**
      * 设置闹钟提醒
      */
     public void setAlarm(ReminderConfig config) {
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra("taskTitle", config.getTaskTitle());
+        intent.putExtra("taskStartTime", config.getTaskStartTime());
+        intent.putExtra("taskId", config.getTaskId());
+        // 使用生成的 requestCode 替代直接使用 taskId
+        int requestCode = generateRequestCode(config.getTaskId());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
-                config.getTaskId(),
+                requestCode,
                 intent,
                 PendingIntent.FLAG_MUTABLE
         );
@@ -76,9 +93,11 @@ public class ReminderManager {
      */
     public void cancelAlarm(int taskId) {
         Intent intent = new Intent(context, AlarmReceiver.class);
+        // 使用生成的 requestCode 替代直接使用 taskId
+        int requestCode = generateRequestCode(taskId);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
-                taskId,
+                requestCode,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT
         );

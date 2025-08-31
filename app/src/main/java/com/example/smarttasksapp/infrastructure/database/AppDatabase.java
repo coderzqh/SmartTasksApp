@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import com.example.smarttasksapp.infrastructure.dao.TaskDao;
 import com.example.smarttasksapp.infrastructure.entity.Task;
 
-@Database(entities = {Task.class}, version = 4, exportSchema = false)
+@Database(entities = {Task.class}, version = 5, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static volatile AppDatabase instance;
