@@ -1,6 +1,5 @@
 package com.example.smarttasksapp.feature.tasks.domain;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.example.smarttasksapp.feature.reminder.domain.ReminderConfig;
@@ -14,8 +13,6 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import dagger.hilt.android.qualifiers.ApplicationContext;
-
 @Singleton
 public class TaskReminderManager {
     private static final String TAG = "TaskReminderManager";
@@ -25,7 +22,7 @@ public class TaskReminderManager {
     private final ScheduledExecutorService scheduler;
     
     @Inject
-    public TaskReminderManager(IReminderService reminderService, @ApplicationContext Context context) {
+    public TaskReminderManager(IReminderService reminderService) {
         this.reminderService = reminderService;
         // 创建一个按开始时间排序的优先队列
         this.reminderQueue = new PriorityQueue<>((t1, t2) -> Long.compare(t1.getStartTime(), t2.getStartTime()));
