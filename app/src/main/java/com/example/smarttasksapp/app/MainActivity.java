@@ -1,12 +1,14 @@
 package com.example.smarttasksapp.app;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -17,8 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
 import com.example.smarttasksapp.R;
-import com.example.smarttasksapp.core.lifecycle.AppLifecycleManager;
-import com.example.smarttasksapp.core.lifecycle.FragmentLifecycleManager;
+
 import com.example.smarttasksapp.feature.tasks.ui.adapter.TaskAdapter;
 import com.example.smarttasksapp.feature.tasks.ui.adapter.SwipeToCompleteCallback;
 import com.example.smarttasksapp.feature.tasks.ui.view.AddTaskBottomSheet;
@@ -28,12 +29,15 @@ import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
 
     private TaskViewModel viewModel;
     private TaskAdapter adapter;
-    private FragmentLifecycleManager fragmentLifecycleManager;
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,10 +49,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // 初始化Fragment生命周期管理
-        AppLifecycleManager lifecycleManager = AppLifecycleManager.getInstance();
-        fragmentLifecycleManager = FragmentLifecycleManager.getInstance(lifecycleManager);
-        fragmentLifecycleManager.registerFragmentLifecycle(getSupportFragmentManager());
+
 
         RecyclerView rv = findViewById(R.id.rvTasks);
         View fab = findViewById(R.id.fabAdd);
@@ -112,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     private void attachDragSort(RecyclerView recyclerView) {
         SwipeToCompleteCallback callback = new SwipeToCompleteCallback(adapter, (taskId, isCompleted) -> {
             viewModel.updateTaskStatus(taskId, isCompleted);

@@ -11,15 +11,25 @@ import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.scopes.ViewModelScoped;
+
 /**
  * 任务用例
  * 封装任务相关的业务逻辑
  */
+@ViewModelScoped
 public class TaskUseCase {
     private final ITaskRepository repository;
     
+    @Inject
     public TaskUseCase(ITaskRepository repository) {
         this.repository = repository;
+    }
+    
+    public ITaskRepository getRepository() {
+        return repository;
     }
     
     /**

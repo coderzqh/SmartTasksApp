@@ -10,8 +10,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.smarttasksapp.core.lifecycle.AppLifecycleManager;
-import com.example.smarttasksapp.core.lifecycle.LifecycleScope;
+
 import com.example.smarttasksapp.feature.tasks.constants.TaskConstants;
 import com.example.smarttasksapp.feature.tasks.data.ITaskRepository;
 import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
@@ -19,10 +18,15 @@ import com.example.smarttasksapp.feature.tasks.domain.usecase.TaskUseCase;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
 /**
  * 任务视图模型
  * 使用新的架构，直接管理状态，通过TaskUseCase处理业务逻辑
  */
+@HiltViewModel
 public class TaskViewModel extends AndroidViewModel {
     private static final String TAG = "TaskViewModel";
     
@@ -35,20 +39,13 @@ public class TaskViewModel extends AndroidViewModel {
     
     // 业务逻辑
     private final TaskUseCase taskUseCase;
-    private final LifecycleScope scope;
     
-    public TaskViewModel(@NonNull Application application) {
+    @Inject
+    public TaskViewModel(@NonNull Application application, TaskUseCase taskUseCase) {
         super(application);
         
-        // 通过生命周期管理器获取依赖
-        AppLifecycleManager lifecycleManager = AppLifecycleManager.getInstance();
-        
-        // 创建ViewModel作用域
-        this.scope = lifecycleManager.createScope("TaskViewModel_" + System.currentTimeMillis());
-        
         // 获取依赖
-        ITaskRepository repository = lifecycleManager.getDependency(ITaskRepository.class);
-        this.taskUseCase = new TaskUseCase(repository);
+        this.taskUseCase = taskUseCase;
         
         // 观察任务列表
         observeTasks();
@@ -266,8 +263,7 @@ public class TaskViewModel extends AndroidViewModel {
     // 私有方法
     private void observeTasks() {
         // 从Repository获取任务列表
-        ITaskRepository repository = AppLifecycleManager.getInstance().getDependency(ITaskRepository.class);
-        repository.observeAll().observeForever(tasks -> {
+        taskUseCase.getRepository().observeAll().observeForever(tasks -> {
             if (tasks != null) {
                 this.tasks.setValue(tasks);
                 Log.d(TAG, "Tasks updated: " + tasks.size() + " tasks");
@@ -293,11 +289,6 @@ public class TaskViewModel extends AndroidViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        
-        // 销毁作用域
-        if (scope != null) {
-            AppLifecycleManager.getInstance().destroyScope(scope.getName());
-        }
         
         Log.d(TAG, "TaskViewModel cleared");
     }
