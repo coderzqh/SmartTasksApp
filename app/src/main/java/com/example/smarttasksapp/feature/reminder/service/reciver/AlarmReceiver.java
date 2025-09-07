@@ -49,6 +49,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setAutoCancel(true);
 
         // 显示通知
-        notificationManager.notify((int) taskId, builder.build());
+        notificationManager.notify(Long.hashCode(taskId), builder.build());
     }
 }

@@ -5,12 +5,14 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.Editable;
 import android.text.Layout;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -156,6 +159,7 @@ public class AddTaskBottomSheet extends BottomSheetDialogFragment {
         mEtDesc.addTextChangedListener(simpleTextWatcher(s -> cacheContent()));
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     private void setupSubmitButton() {
 
         mBtnSubmit.setOnClickListener(v -> {
@@ -275,6 +279,9 @@ public class AddTaskBottomSheet extends BottomSheetDialogFragment {
                 calendar.set(Calendar.MILLISECOND, 0);
                 
                 selectedStartTime = calendar.getTimeInMillis();
+                Log.d("AddTaskBottomSheet", "Selected start time: " + new Date(selectedStartTime) +
+                      ", timestamp: " + selectedStartTime);
+                
                 mTvStartTime.setText(dateFormat.format(new Date(selectedStartTime)));
                 mTvStartTime.setTextColor(requireContext().getColor(android.R.color.black));
                 

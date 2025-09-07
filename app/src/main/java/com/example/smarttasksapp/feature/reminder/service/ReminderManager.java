@@ -6,9 +6,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 
 import com.example.smarttasksapp.feature.reminder.domain.ReminderConfig;
 import com.example.smarttasksapp.feature.reminder.service.reciver.AlarmReceiver;
+
+import java.util.Date;
 
 public class ReminderManager {
     private static ReminderManager instance;
@@ -26,39 +29,50 @@ public class ReminderManager {
         }
         return instance;
     }
-    
+
     @SuppressLint("ScheduleExactAlarm")
     public void setAlarm(ReminderConfig config) {
-        // 检查是否有有效的开始时间
-        if (config.getStartTime() <= 0) {
+        long triggerAtMillis = config.getStartTime();
+        long currentTimeMillis = System.currentTimeMillis();
+        
+        Log.d("ReminderManager", "Setting alarm for: " + new Date(triggerAtMillis) +
+              ", current time: " + new Date(currentTimeMillis) + 
+              ", triggerAtMillis: " + triggerAtMillis + 
+              ", currentTimeMillis: " + currentTimeMillis);
+    
+        // 校验开始时间是否有效且在未来
+        if (triggerAtMillis <= currentTimeMillis) {
+            Log.w("ReminderManager", "Alarm time is in the past, skipping alarm setup");
             return;
         }
+    
+        // 创建 PendingIntent
+        PendingIntent pendingIntent = createPendingIntent(config);
+    
+        // 设置闹钟
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        } else {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        }
         
-        // 创建Intent
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        intent.putExtra("taskTitle", config.getTaskTitle());
-        intent.putExtra("taskStartTime", config.getStartTime());
-        intent.putExtra("taskId", config.getTaskId());
-        
-        // 生成请求码
+        Log.d("ReminderManager", "Alarm set successfully");
+    }
+
+    private PendingIntent createPendingIntent(ReminderConfig config) {
+        Intent intent = new Intent(context, AlarmReceiver.class)
+                .putExtra("taskTitle", config.getTaskTitle())
+                .putExtra("taskStartTime", config.getStartTime())
+                .putExtra("taskId", config.getTaskId());
+
         int requestCode = generateRequestCode(config.getTaskId());
-        
-        // 创建PendingIntent
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+
+        return PendingIntent.getBroadcast(
                 context,
                 requestCode,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
-        
-        // 设置闹钟
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // Android 6.0+
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, config.getStartTime(), pendingIntent);
-        } else {
-            // Android 6.0以下
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, config.getStartTime(), pendingIntent);
-        }
     }
     
     public void cancelAlarm(long taskId) {
