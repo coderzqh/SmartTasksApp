@@ -92,7 +92,14 @@ public class TaskUseCase {
         TaskEntity task = new TaskEntity(title.trim(), description, startTime);
         task.setId(taskId);
         
-        return repository.updateTask(task);
+        return repository.updateTask(task)
+                .thenApply(success -> {
+                    // 发布任务更新事件
+                    if (success) {
+                        TaskEventBus.getInstance().postEvent(new TaskEventBus.TaskUpdatedEvent(task));
+                    }
+                    return success;
+                });
     }
     
     /**
@@ -104,7 +111,14 @@ public class TaskUseCase {
             return CompletableFutureUtil.failedFuture(new IllegalArgumentException("任务ID无效"));
         }
         
-        return repository.deleteTask(taskId);
+        return repository.deleteTask(taskId)
+                .thenApply(success -> {
+                    // 发布任务删除事件
+                    if (success) {
+                        TaskEventBus.getInstance().postEvent(new TaskEventBus.TaskDeletedEvent(taskId));
+                    }
+                    return success;
+                });
     }
     
     /**
