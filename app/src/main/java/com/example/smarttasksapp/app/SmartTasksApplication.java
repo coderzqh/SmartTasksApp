@@ -1,27 +1,35 @@
 package com.example.smarttasksapp.app;
 
 import android.app.Application;
-import android.util.Log;
+
+import com.example.smarttasksapp.feature.reminder.service.ReminderManager;
+import com.example.smarttasksapp.feature.reminder.service.TaskReminderService;
+import com.example.smarttasksapp.feature.tasks.event.TaskEventBus;
 
 import dagger.hilt.android.HiltAndroidApp;
 
-/**
- * 应用入口类
- * 负责初始化应用的核心组件
- */
 @HiltAndroidApp
 public class SmartTasksApplication extends Application {
-    private static final String TAG = "SmartTasksApplication";
+    private TaskReminderService taskReminderService;
     
     @Override
     public void onCreate() {
         super.onCreate();
-
+        
+        // 初始化任务提醒服务
+        ReminderManager reminderManager = ReminderManager.getInstance(this);
+        TaskEventBus taskEventBus = TaskEventBus.getInstance();
+        taskReminderService = new TaskReminderService(reminderManager, taskEventBus);
+        taskReminderService.startListening();
     }
     
     @Override
     public void onTerminate() {
         super.onTerminate();
-
+        
+        // 停止任务提醒服务
+        if (taskReminderService != null) {
+            taskReminderService.stopListening();
+        }
     }
 }

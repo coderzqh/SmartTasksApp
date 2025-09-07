@@ -7,6 +7,8 @@ import androidx.annotation.RequiresApi;
 import com.example.smarttasksapp.core.util.CompletableFutureUtil;
 import com.example.smarttasksapp.feature.tasks.data.ITaskRepository;
 import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
+import com.example.smarttasksapp.feature.tasks.event.TaskEventBus;
+import com.example.smarttasksapp.feature.tasks.event.TaskEventBus.TaskAddedEvent;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -56,7 +58,13 @@ public class TaskUseCase {
             return CompletableFutureUtil.failedFuture(new IllegalArgumentException("开始时间无效"));
         }
         
-        return repository.addTask(title.trim(), taskEntity.getDescription(), startTime);
+        return repository.addTask(title.trim(), taskEntity.getDescription(), startTime)
+                .thenApply(taskId -> {
+                    // 发布任务添加事件
+                    taskEntity.setId(taskId);
+                    TaskEventBus.getInstance().postEvent(new TaskAddedEvent(taskEntity));
+                    return taskId;
+                });
     }
     
     /**

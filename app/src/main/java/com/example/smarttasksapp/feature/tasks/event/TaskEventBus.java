@@ -27,6 +27,20 @@ public class TaskEventBus {
     public LiveData<TaskEvent> getEvents() {
         return eventBus;
     }
+    
+    public <T extends TaskEvent> LiveData<T> getEvents(Class<T> eventType) {
+        // 创建一个过滤特定事件类型的LiveData
+        MutableLiveData<T> filteredLiveData = new MutableLiveData<>();
+        
+        // 观察所有事件，并只转发指定类型的事件
+        eventBus.observeForever(event -> {
+            if (eventType.isInstance(event)) {
+                filteredLiveData.postValue(eventType.cast(event));
+            }
+        });
+        
+        return filteredLiveData;
+    }
 
     public void postEvent(TaskEvent event) {
         eventBus.postValue(event);
@@ -125,33 +139,6 @@ public class TaskEventBus {
 
         public List<TaskEntity> getTasks() {
             return tasks;
-        }
-    }
-
-    /**
-     * 任务排序事件
-     */
-    public static class TaskReorderedEvent extends TaskEvent {
-        private final long fromTaskId;
-        private final long toTaskId;
-        private final boolean placeAbove;
-
-        public TaskReorderedEvent(long fromTaskId, long toTaskId, boolean placeAbove) {
-            this.fromTaskId = fromTaskId;
-            this.toTaskId = toTaskId;
-            this.placeAbove = placeAbove;
-        }
-
-        public long getFromTaskId() {
-            return fromTaskId;
-        }
-
-        public long getToTaskId() {
-            return toTaskId;
-        }
-
-        public boolean isPlaceAbove() {
-            return placeAbove;
         }
     }
 

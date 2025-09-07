@@ -41,10 +41,5 @@ public class DependencyInjectionModule {
     public IReminderService provideReminderService(@ApplicationContext Context context) {
         return new ReminderService(context);
     }
-    
-    @Provides
-    @Singleton
-    public TaskReminderManager provideTaskReminderManager(IReminderService reminderService) {
-        return new TaskReminderManager(reminderService);
-    }
+
 }

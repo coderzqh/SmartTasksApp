@@ -1,114 +1,88 @@
 package com.example.smarttasksapp.feature.reminder.service;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
-import android.provider.Settings;
 
 import com.example.smarttasksapp.feature.reminder.domain.ReminderConfig;
 import com.example.smarttasksapp.feature.reminder.service.reciver.AlarmReceiver;
 
 public class ReminderManager {
-    private static volatile ReminderManager instance;
-    private final AlarmManager alarmManager;
-    private final Context context;
-
+    private static ReminderManager instance;
+    private Context context;
+    private AlarmManager alarmManager;
+    
     private ReminderManager(Context context) {
-        this.context = context.getApplicationContext();
+        this.context = context;
         this.alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     }
-
+    
     public static ReminderManager getInstance(Context context) {
-        if (instance == null ){
-            synchronized(ReminderManager.class){
-                if (instance == null) {
-                    instance = new ReminderManager(context);
-                }
-            }
+        if (instance == null) {
+            instance = new ReminderManager(context);
         }
         return instance;
     }
-
-    /**
-     * 生成 requestCode
-     * @param taskId 任务ID
-     * @return requestCode
-     */
-    private int generateRequestCode(long taskId) {
-        // 使用哈希算法确保唯一性，同时保证同一个ID转换的值相同
-        // 通过位运算将 long 转换为 int，并处理可能的负值
-        int hashCode = Long.hashCode(taskId);
-        // 确保 requestCode 为正数，避免潜在问题
-        return hashCode & 0x7FFFFFFF;
-    }
-
-    /**
-     * 设置闹钟提醒
-     */
+    
+    @SuppressLint("ScheduleExactAlarm")
     public void setAlarm(ReminderConfig config) {
+        // 检查是否有有效的开始时间
+        if (config.getStartTime() <= 0) {
+            return;
+        }
+        
+        // 创建Intent
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra("taskTitle", config.getTaskTitle());
-        intent.putExtra("taskStartTime", config.getTaskStartTime());
+        intent.putExtra("taskStartTime", config.getStartTime());
         intent.putExtra("taskId", config.getTaskId());
-        // 使用生成的 requestCode 替代直接使用 taskId
+        
+        // 生成请求码
         int requestCode = generateRequestCode(config.getTaskId());
+        
+        // 创建PendingIntent
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
                 requestCode,
                 intent,
-                PendingIntent.FLAG_MUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
-
-        if (config.isRepeat()) {
-            // 设置重复提醒
-            alarmManager.setRepeating(
-                    AlarmManager.RTC_WAKEUP,
-                    config.getTriggerTime(),
-                    AlarmManager.INTERVAL_DAY,  // 每天重复
-                    pendingIntent
-            );
+        
+        // 设置闹钟
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Android 6.0+
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, config.getStartTime(), pendingIntent);
         } else {
-
-            // 设置单次提醒
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()){
-                requestExactAlarmPermission(context);
-                // 直接返回，等待用户授权后再尝试设置闹钟
-                return;
-            }
-
-            alarmManager.setExact(
-                    AlarmManager.RTC_WAKEUP,
-                    config.getTriggerTime(),
-                    pendingIntent
-            );
-
+            // Android 6.0以下
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, config.getStartTime(), pendingIntent);
         }
     }
-
-    /**
-     * 取消闹钟提醒
-     */
-    public void cancelAlarm(int taskId) {
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        // 使用生成的 requestCode 替代直接使用 taskId
+    
+    public void cancelAlarm(long taskId) {
+        // 生成请求码
         int requestCode = generateRequestCode(taskId);
+        
+        // 创建Intent
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        
+        // 创建PendingIntent
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
                 requestCode,
                 intent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
-
+        
+        // 取消闹钟
         alarmManager.cancel(pendingIntent);
     }
-
-    private void requestExactAlarmPermission(Context context) {
-        Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-        intent.setData(Uri.parse("package:" + context.getPackageName()));
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // 添加 FLAG_ACTIVITY_NEW_TASK
-        context.startActivity(intent);
+    
+    private int generateRequestCode(long taskId) {
+        // 使用任务ID和开始时间生成唯一请求码
+        // 将高32位与低32位进行异或操作
+        return Long.hashCode(taskId);
     }
 }
