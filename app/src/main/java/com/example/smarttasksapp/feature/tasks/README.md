@@ -202,7 +202,7 @@ public void addTask(String title, String description, long startTime) {
 
 ### 3. **模块化设计**
 - 清晰的模块边界
-- 松耦合的模块关系
+- 松耦合的关系
 - 可扩展的模块系统
 
 ### 4. **错误处理**
@@ -226,5 +226,62 @@ public void addTask(String title, String description, long startTime) {
 - 使用Room进行数据访问
 - 支持LiveData观察
 - 批量操作支持
+
+## 🤖 AI功能集成 (SiliconFlow API)
+
+### 配置
+AI模块已集成SiliconFlow API，用于生成任务描述和建议任务。
+
+- **API地址**: https://api.siliconflow.cn/v1/chat/completions
+- **模型**: Qwen/QwQ-32B
+- **认证**: 使用Bearer Token认证
+
+### 使用方式
+AI功能通过依赖注入自动配置，开发者可以直接使用以下用例：
+
+1. **GenerateTaskDescriptionUseCase**: 根据任务标题生成详细描述
+2. **SuggestTasksUseCase**: 根据上下文建议相关任务
+
+### 示例代码
+```java
+// 在ViewModel中使用AI功能
+public class TaskViewModel extends AndroidViewModel {
+    private final GenerateTaskDescriptionUseCase generateTaskDescriptionUseCase;
+    private final SuggestTasksUseCase suggestTasksUseCase;
+    
+    public TaskViewModel(@NonNull Application application) {
+        super(application);
+        
+        // 通过生命周期管理器获取AI用例
+        AppLifecycleManager lifecycleManager = AppLifecycleManager.getInstance();
+        this.generateTaskDescriptionUseCase = lifecycleManager.getDependency(GenerateTaskDescriptionUseCase.class);
+        this.suggestTasksUseCase = lifecycleManager.getDependency(SuggestTasksUseCase.class);
+    }
+    
+    // 生成任务描述
+    public void generateTaskDescription(String taskTitle) {
+        generateTaskDescriptionUseCase.execute(taskTitle)
+            .thenAccept(description -> {
+                // 更新UI显示生成的描述
+            })
+            .exceptionally(throwable -> {
+                // 处理错误
+                return null;
+            });
+    }
+    
+    // 建议任务
+    public void suggestTasks(String context) {
+        suggestTasksUseCase.execute(context)
+            .thenAccept(suggestions -> {
+                // 更新UI显示建议的任务
+            })
+            .exceptionally(throwable -> {
+                // 处理错误
+                return null;
+            });
+    }
+}
+```
 
 这个新架构实现了真正的依赖倒置，让Feature层和Infrastructure层完全解耦，同时提供了全局的生命周期管理，使代码更加清晰、可维护和可测试。

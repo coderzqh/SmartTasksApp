@@ -21,6 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".feature.ai.ui.activity.AiChatActivity" android:exported="false" />
         <receiver android:name=".feature.reminder.service.reciver.AlarmReceiver" android:exported="false" />
     </application>
 
