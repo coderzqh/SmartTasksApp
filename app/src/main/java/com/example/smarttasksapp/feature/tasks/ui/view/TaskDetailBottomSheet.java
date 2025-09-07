@@ -3,6 +3,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Layout;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -44,7 +46,7 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
     // ---------- 成员变量 ----------
     private long selectedStartTime = 0;
     private boolean isInEditMode = false;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_TIME_FORMAT, Locale.getDefault());
 
 
     public static TaskDetailBottomSheet newInstance(TaskEntity task) {
@@ -202,6 +204,7 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
     }
 
     // ---------- 保存任务更改 ----------
+    @RequiresApi(api = Build.VERSION_CODES.S)
     private void saveTaskChanges(ViewHolder viewHolder) {
         if (getArguments() == null) return;
         long taskId = getArguments().getLong(ARG_ID, 0);

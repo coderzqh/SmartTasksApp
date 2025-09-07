@@ -45,7 +45,7 @@ public class AddTaskBottomSheet extends BottomSheetDialogFragment {
     
     private TextView mTvStartTime;
     private long selectedStartTime = 0;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_TIME_FORMAT, Locale.getDefault());
     
     // 缓存相关常量
     private static final String PREF_NAME = Constants.PREF_NAME;

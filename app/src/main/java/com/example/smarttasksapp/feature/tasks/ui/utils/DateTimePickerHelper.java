@@ -18,7 +18,7 @@ public class DateTimePickerHelper {
 
     public DateTimePickerHelper(Context context) {
         this.context = context;
-        this.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        this.dateFormat = new SimpleDateFormat(Constants.DATE_TIME_FORMAT, Locale.getDefault());
     }
 
     public void setSelectedTime(long time) {
