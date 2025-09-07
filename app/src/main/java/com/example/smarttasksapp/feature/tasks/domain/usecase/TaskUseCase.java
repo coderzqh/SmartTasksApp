@@ -7,7 +7,6 @@ import androidx.annotation.RequiresApi;
 import com.example.smarttasksapp.core.util.CompletableFutureUtil;
 import com.example.smarttasksapp.feature.tasks.data.ITaskRepository;
 import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
-import com.example.smarttasksapp.feature.tasks.domain.TaskReminderManager;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -23,12 +22,10 @@ import dagger.hilt.android.scopes.ViewModelScoped;
 @ViewModelScoped
 public class TaskUseCase {
     private final ITaskRepository repository;
-    private final TaskReminderManager reminderManager;
     
     @Inject
-    public TaskUseCase(ITaskRepository repository, TaskReminderManager reminderManager) {
+    public TaskUseCase(ITaskRepository repository) {
         this.repository = repository;
-        this.reminderManager = reminderManager;
     }
     
     public ITaskRepository getRepository() {
@@ -59,13 +56,7 @@ public class TaskUseCase {
             return CompletableFutureUtil.failedFuture(new IllegalArgumentException("开始时间无效"));
         }
         
-        return repository.addTask(title.trim(), taskEntity.getDescription(), startTime)
-                .thenCompose(taskId -> {
-                    // 设置任务ID并添加到提醒队列
-                    taskEntity.setId(taskId);
-                    reminderManager.addTaskToReminderQueue(taskEntity);
-                    return CompletableFuture.completedFuture(taskId);
-                });
+        return repository.addTask(title.trim(), taskEntity.getDescription(), startTime);
     }
     
     /**
@@ -93,13 +84,7 @@ public class TaskUseCase {
         TaskEntity task = new TaskEntity(title.trim(), description, startTime);
         task.setId(taskId);
         
-        return repository.updateTask(task)
-                .thenApply(success -> {
-                    if (success) {
-                        reminderManager.updateTaskReminder(task);
-                    }
-                    return success;
-                });
+        return repository.updateTask(task);
     }
     
     /**
@@ -111,13 +96,7 @@ public class TaskUseCase {
             return CompletableFutureUtil.failedFuture(new IllegalArgumentException("任务ID无效"));
         }
         
-        return repository.deleteTask(taskId)
-                .thenApply(success -> {
-                    if (success) {
-                        reminderManager.removeTaskFromReminderQueue(taskId);
-                    }
-                    return success;
-                });
+        return repository.deleteTask(taskId);
     }
     
     /**
@@ -145,18 +124,7 @@ public class TaskUseCase {
             return CompletableFutureUtil.failedFuture(new IllegalArgumentException("开始时间无效"));
         }
         
-        return repository.updateTaskStartTime(taskId, startTime)
-                .thenApply(success -> {
-                    if (success) {
-                        // 获取任务信息并更新提醒
-                        // 这里简化处理，实际应用中可能需要从仓库获取完整任务信息
-                        TaskEntity task = new TaskEntity();
-                        task.setId(taskId);
-                        task.setStartTime(startTime);
-                        reminderManager.updateTaskReminder(task);
-                    }
-                    return success;
-                });
+        return repository.updateTaskStartTime(taskId, startTime);
     }
     
     /**

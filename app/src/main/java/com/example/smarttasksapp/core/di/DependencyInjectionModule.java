@@ -5,7 +5,6 @@ import android.content.Context;
 import com.example.smarttasksapp.feature.reminder.service.IReminderService;
 import com.example.smarttasksapp.feature.reminder.service.impl.ReminderService;
 import com.example.smarttasksapp.feature.tasks.data.ITaskRepository;
-import com.example.smarttasksapp.feature.tasks.domain.TaskReminderManager;
 import com.example.smarttasksapp.infrastructure.database.AppDatabase;
 import com.example.smarttasksapp.infrastructure.repository.TaskRepositoryImpl;
 

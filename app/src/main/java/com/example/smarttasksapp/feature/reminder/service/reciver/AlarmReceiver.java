@@ -39,19 +39,5 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         notificationManager.notify(1, builder.build());
 
-        // 设置下一个闹钟（如果需要）
-        // 这里简化处理，实际应用中可能需要更复杂的逻辑来确定下一个提醒时间
-        // 例如，可以设置每天重复提醒，或者根据任务的重复规则设置下一个提醒
-        if (taskStartTime > 0) {
-            long nextTriggerTime = taskStartTime + 24 * 60 * 60 * 1000; // 24小时后
-            ReminderConfig nextConfig = new ReminderConfig(
-                taskId,
-                taskTitle,
-                nextTriggerTime,
-                false, // 不重复
-                nextTriggerTime
-            );
-            ReminderManager.getInstance(context).setAlarm(nextConfig);
-        }
     }
 }
