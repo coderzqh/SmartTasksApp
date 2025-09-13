@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- 添加网络访问权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:name=".app.SmartTasksApplication"
         android:allowBackup="true"

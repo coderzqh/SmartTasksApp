@@ -20,7 +20,7 @@ public class AiRepositoryImpl implements AiRepository {
     }
 
     @Override
-    public ChatCompletionResponse chatCompletions(ChatCompletionRequest request) {
+    public ChatCompletionResponse chatCompletions(ChatCompletionRequest request) {        
         try {
             Call<ChatCompletionResponse> call = api.chatCompletions(
                     "Bearer " + token,
@@ -31,12 +31,16 @@ public class AiRepositoryImpl implements AiRepository {
             if (response.isSuccessful() && response.body() != null) {
                 return response.body();
             } else {
-                // Handle error response
-                return null;
+                // 处理错误响应，提供更具体的错误信息
+                String errorMessage = "API Error: " + response.code() + " " + response.message();
+                System.err.println(errorMessage);
+                throw new RuntimeException(errorMessage);
             }
         } catch (IOException e) {
+            // 捕获并提供更具体的错误信息
             e.printStackTrace();
-            return null;
+            String errorType = e instanceof java.net.SocketTimeoutException ? "请求超时" : "网络错误";
+            throw new RuntimeException(errorType + ": " + e.getMessage(), e);
         }
     }
 }

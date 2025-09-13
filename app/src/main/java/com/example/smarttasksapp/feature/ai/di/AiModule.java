@@ -10,8 +10,11 @@ import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.components.SingletonComponent;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
 
@@ -24,8 +27,16 @@ public class AiModule {
     @Provides
     @Singleton
     public AiServiceApi provideAiServiceApi() {
+        // 创建OkHttpClient并配置超时设置
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)  // 连接超时时间
+                .readTimeout(120, TimeUnit.SECONDS)    // 读取超时时间
+                .writeTimeout(60, TimeUnit.SECONDS)    // 写入超时时间
+                .build();
+                
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
+                .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         return retrofit.create(AiServiceApi.class);
