@@ -4,6 +4,12 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- 添加网络访问权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 添加读取外部存储权限 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- 添加相机权限 -->
+    <uses-permission android:name="android.permission.CAMERA" />
     <application
         android:name=".app.SmartTasksApplication"
         android:allowBackup="true"
@@ -21,7 +27,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".feature.ai.ui.activity.AiChatActivity" android:exported="false" />
+        <!-- 注册OCR演示Activity -->
+        <activity android:name=".feature.input.OcrDemoActivity" android:exported="false" />
         <receiver android:name=".feature.reminder.service.reciver.AlarmReceiver" android:exported="false" />
     </application>
 

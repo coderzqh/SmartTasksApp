@@ -75,42 +75,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="AI功能"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/feature_card_1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp"
-                    android:foreground="?android:attr/selectableItemBackground">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="16dp">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="📝 生成任务描述"
-                            android:textSize="16sp" />
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="根据任务标题自动生成详细描述"
-                            android:textSize="14sp"
-                            android:textColor="#777"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/feature_card_2"
@@ -121,52 +85,7 @@
                     app:cardElevation="2dp"
                     android:foreground="?android:attr/selectableItemBackground">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="16dp">
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="💡 提供任务建议"
-                            android:textSize="16sp" />
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="基于当前上下文推荐相关任务"
-                            android:textSize="14sp"
-                            android:textColor="#777"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/feature_card_3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp"
-                    android:foreground="?android:attr/selectableItemBackground">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="16dp">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="💬 智能问答"
-                            android:textSize="16sp" />
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="回答关于任务管理或其他问题"
-                            android:textSize="14sp"
-                            android:textColor="#777"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </LinearLayout>
@@ -181,30 +100,68 @@
         android:gravity="center_vertical"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
+        android:background="@drawable/rounded_input_bg"
+        android:layout_marginHorizontal="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.textfield.TextInputLayout
+        <!-- 左侧相机图标 -->
+        <ImageView
+            android:id="@+id/iv_camera"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_camera"
+            android:tint="#666"
+            android:scaleType="centerInside"
+            android:padding="8dp" />
+
+        <!-- 输入框 -->
+        <EditText
+            android:id="@+id/et_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="输入你的问题...">
+            android:hint="发消息或按住说话..."
+            android:textSize="16sp"
+            android:background="@null"
+            android:paddingVertical="12dp"
+            android:maxLines="2" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_question"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="发送"
-            android:minWidth="0dp"
-            app:icon="@drawable/ic_arrow_right" />
+        <!-- 右侧麦克风图标 -->
+        <ImageView
+            android:id="@+id/iv_microphone"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_microphone"
+            android:tint="#666"
+            android:scaleType="centerInside"
+            android:padding="8dp" />
+            
+        <!-- 右侧加号图标（在麦克风图标右侧） -->
+        <ImageView
+            android:id="@+id/iv_add"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_plus"
+            android:tint="#666"
+            android:scaleType="centerInside"
+            android:padding="8dp" />
+            
+        <!-- 蓝色发送按钮（初始隐藏） -->
+        <ImageView
+            android:id="@+id/iv_send"
+            android:layout_width="36dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_send"
+            android:scaleType="centerInside"
+            android:padding="6dp"
+            android:visibility="gone"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@drawable/rounded_oval_background" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -79,9 +79,7 @@ public class TasksFragment extends Fragment {
 
         // 设置拖拽完成监听器，更新排序索引
         swipeToCompleteCallback.setOnDragCompleteListener(orderedTasks -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                viewModel.persistTaskOrder(new ArrayList<>(orderedTasks));
-            }
+            viewModel.persistTaskOrder(new ArrayList<>(orderedTasks));
         });
 
         // 将ItemTouchHelper与RecyclerView关联

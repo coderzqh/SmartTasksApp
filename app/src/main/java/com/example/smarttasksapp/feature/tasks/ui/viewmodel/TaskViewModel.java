@@ -153,13 +153,19 @@ public class TaskViewModel extends AndroidViewModel {
     @RequiresApi(api = Build.VERSION_CODES.S)
     public void updateTaskStatus(long taskId, boolean isCompleted) {
         clearError();
+        setLoading(true);
         
         Log.d(TAG, "Updating task status: " + taskId + " -> " + isCompleted);
 
         taskUseCase.updateTaskStatus(taskId, isCompleted)
                 .thenAccept(success -> {
                     if (success) {
+                        setOperationSuccessful(true);
                         Log.d(TAG, "Task status updated successfully: " + taskId);
+                    } else {
+                        String errorMsg = Constants.UPDATE_TASK_STATUS_FAILED + "操作未成功完成";
+                        setError(errorMsg);
+                        Log.e(TAG, "Task status update failed: " + taskId);
                     }
                 })
                 .exceptionally(throwable -> {
@@ -167,7 +173,8 @@ public class TaskViewModel extends AndroidViewModel {
                     setError(errorMsg);
                     Log.e(TAG, Constants.ERROR_UPDATING_TASK_STATUS + throwable.getMessage(), throwable);
                     return null;
-                });
+                })
+                .whenComplete((result, throwable) -> setLoading(false));
     }
     
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -190,7 +197,6 @@ public class TaskViewModel extends AndroidViewModel {
                 });
     }
     
-    @RequiresApi(api = Build.VERSION_CODES.S)
     public void persistTaskOrder(List<TaskEntity> orderedTasks) {
         if (orderedTasks == null || orderedTasks.isEmpty()) {
             Log.e(TAG, "Cannot persist order: ordered list is null or empty");
@@ -198,13 +204,19 @@ public class TaskViewModel extends AndroidViewModel {
         }
         
         clearError();
+        setLoading(true);
         
         Log.d(TAG, "Persisting order for " + orderedTasks.size() + " tasks");
         
         taskUseCase.persistTaskOrder(orderedTasks)
                 .thenAccept(success -> {
                     if (success) {
+                        setOperationSuccessful(true);
                         Log.d(TAG, "Task order persisted successfully");
+                    } else {
+                        String errorMsg = Constants.PERSIST_TASK_ORDER_FAILED + "操作未成功完成";
+                        setError(errorMsg);
+                        Log.e(TAG, "Task order persist failed");
                     }
                 })
                 .exceptionally(throwable -> {
@@ -212,7 +224,8 @@ public class TaskViewModel extends AndroidViewModel {
                     setError(errorMsg);
                     Log.e(TAG, Constants.ERROR_PERSISTING_TASK_ORDER + throwable.getMessage(), throwable);
                     return null;
-                });
+                })
+                .whenComplete((result, throwable) -> setLoading(false));
     }
     
     // 状态管理方法

@@ -30,6 +30,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            // Use pickFirst to resolve core.properties conflict instead of excluding it
+            pickFirsts += "core.properties"
+        }
+    }
 }
 
 dependencies {
@@ -59,4 +67,7 @@ dependencies {
 
     // JSON处理
     implementation("com.google.code.gson:gson:2.10.1")
+
+    // 阿里云OCR
+    implementation(libs.aliyun.ocr)
 }

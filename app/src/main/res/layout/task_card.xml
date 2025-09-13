@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 任务标题编辑区 -->
+        <EditText
+            android:id="@+id/task_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:inputType="text"
+            android:background="@null"
+            android:maxLength="30"
+            android:hint="任务标题" />
+
+        <!-- 任务描述编辑区 -->
+        <EditText
+            android:id="@+id/task_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="14sp"
+            android:inputType="textMultiLine"
+            android:background="@null"
+            android:maxLength="100"
+            android:minLines="2"
+            android:maxLines="4"
+            android:hint="任务描述" />
+
+        <!-- 底部操作按钮 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <!-- 添加到任务按钮 -->
+            <Button
+                android:id="@+id/add_to_task_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:backgroundTint="#2196F3"
+                android:text="添加任务"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:minWidth="100dp"
+                app:cornerRadius="18dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

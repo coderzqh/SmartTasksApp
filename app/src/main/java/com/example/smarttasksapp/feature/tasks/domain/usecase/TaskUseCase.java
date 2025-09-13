@@ -152,7 +152,6 @@ public class TaskUseCase {
     /**
      * 持久化任务顺序
      */
-    @RequiresApi(api = Build.VERSION_CODES.S)
     public CompletableFuture<Boolean> persistTaskOrder(List<TaskEntity> orderedTasks) {
         if (orderedTasks == null || orderedTasks.isEmpty()) {
             return CompletableFutureUtil.failedFuture(new IllegalArgumentException("任务列表不能为空"));

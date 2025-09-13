@@ -20,7 +20,7 @@ public interface TaskDao {
     @Update
     void update(Task task);
 
-    @Query("SELECT * FROM tasks ORDER BY sortIndex DESC, createdAt ASC")
+    @Query("SELECT * FROM tasks ORDER BY isCompleted ASC, sortIndex DESC, createdAt ASC")
     LiveData<List<Task>> observeAll();
 
     @Query("SELECT * FROM tasks WHERE isCompleted = :isCompleted ORDER BY sortIndex DESC, createdAt ASC")

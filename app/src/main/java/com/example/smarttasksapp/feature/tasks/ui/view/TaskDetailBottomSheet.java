@@ -62,6 +62,7 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
         return fragment;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -140,6 +141,7 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
     }
 
     // ---------- 点击事件 ----------
+    @RequiresApi(api = Build.VERSION_CODES.S)
     private void setupClickListeners(ViewHolder viewHolder) {
         viewHolder.editStartTimeField.setOnClickListener(v -> showDateTimePicker(viewHolder.editStartTimeField));
         viewHolder.btnDelete.setOnClickListener(v -> showDeleteConfirmDialog());
@@ -246,6 +248,7 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
     }
 
     // ---------- 删除任务 ----------
+    @RequiresApi(api = Build.VERSION_CODES.S)
     private void showDeleteConfirmDialog() {
         new AlertDialog.Builder(requireContext())
                 .setTitle(Constants.CONFIRM_DELETE_TITLE)
@@ -256,6 +259,7 @@ public class TaskDetailBottomSheet extends BottomSheetDialogFragment {
                 .show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     private void deleteTask() {
         if (getArguments() == null) return;
         long taskId = getArguments().getLong(ARG_ID, 0);
