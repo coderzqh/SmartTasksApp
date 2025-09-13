@@ -19,6 +19,10 @@ import com.example.smarttasksapp.feature.tasks.ui.view.TaskDetailBottomSheet;
 import com.example.smarttasksapp.core.constants.Constants;
 import com.google.android.material.card.MaterialCardView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import java.util.Objects;
 
 public class TaskAdapter extends ListAdapter<TaskEntity, TaskAdapter.TaskViewHolder> {
@@ -80,6 +84,7 @@ public class TaskAdapter extends ListAdapter<TaskEntity, TaskAdapter.TaskViewHol
         final MaterialCardView taskCard;
         final TextView title;
         final TextView desc;
+        final TextView time;
         final LinearLayout leftSwipeBackground;
         final ImageView completeIcon;
         final TextView completeText;
@@ -89,6 +94,7 @@ public class TaskAdapter extends ListAdapter<TaskEntity, TaskAdapter.TaskViewHol
             taskCard = itemView.findViewById(R.id.taskCard);
             title = itemView.findViewById(R.id.tvTitle);
             desc = itemView.findViewById(R.id.tvDesc);
+            time = itemView.findViewById(R.id.tvTime);
             leftSwipeBackground = itemView.findViewById(R.id.leftSwipeBackground);
             completeIcon = itemView.findViewById(R.id.ivCompleteIcon);
             completeText = itemView.findViewById(R.id.tvCompleteText);
@@ -99,6 +105,21 @@ public class TaskAdapter extends ListAdapter<TaskEntity, TaskAdapter.TaskViewHol
             title.setText(task.getTitle());
             desc.setText(task.getDescription() == null ? "" : task.getDescription());
             
+            // 设置任务时间
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd HH:mm", Locale.getDefault());
+            
+            Date currentDate = new Date();
+            Date taskDate = new Date(task.getStartTime());
+            
+            if (isSameDay(currentDate, taskDate)) {
+                // 同一天，只显示时间
+                time.setText(timeFormat.format(taskDate));
+            } else {
+                // 不同天，显示日期和时间
+                time.setText(dateFormat.format(taskDate));
+            }
+
             // 根据完成状态设置视觉样式
             updateVisualStyle(task.isCompleted());
 
@@ -112,6 +133,11 @@ public class TaskAdapter extends ListAdapter<TaskEntity, TaskAdapter.TaskViewHol
                             .show(((androidx.fragment.app.FragmentActivity) v.getContext()).getSupportFragmentManager(), "taskDetail");
                 }
             });
+        }
+        
+        private boolean isSameDay(Date date1, Date date2) {
+            SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+            return fmt.format(date1).equals(fmt.format(date2));
         }
 
         private void updateVisualStyle(boolean isCompleted) {

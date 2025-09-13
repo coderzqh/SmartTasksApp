@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.smarttasksapp.core.constants.Constants;
 import com.example.smarttasksapp.feature.tasks.domain.TaskEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SwipeToCompleteCallback extends ItemTouchHelper.Callback {
@@ -74,8 +75,28 @@ public class SwipeToCompleteCallback extends ItemTouchHelper.Callback {
             int position = viewHolder.getAdapterPosition();
             if (position != RecyclerView.NO_POSITION) {
                 TaskEntity task = adapter.getCurrentList().get(position);
+                boolean newStatus = !task.isCompleted();
+                
+                // 创建任务列表副本并更新当前任务状态
+                List<TaskEntity> updatedTasks = new ArrayList<>(adapter.getCurrentList());
+                // 使用正确的构造函数创建更新后的任务
+                TaskEntity updatedTask = new TaskEntity(
+                    task.getId(),
+                    task.getTitle(),
+                    task.getDescription(),
+                    task.getCreatedAt(),
+                    task.getSortIndex(),
+                    newStatus,
+                    task.getStartTime()
+                );
+                updatedTasks.set(position, updatedTask);
+                
+                // 先更新UI列表，保持排序状态
+                adapter.submitList(updatedTasks);
+                
+                // 然后更新数据源
                 if (swipeListener != null) {
-                    swipeListener.onTaskStatusChanged(task.getId(), !task.isCompleted());
+                    swipeListener.onTaskStatusChanged(task.getId(), newStatus);
                 }
             }
         }

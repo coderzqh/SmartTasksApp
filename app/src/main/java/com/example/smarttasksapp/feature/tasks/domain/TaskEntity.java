@@ -1,10 +1,14 @@
 package com.example.smarttasksapp.feature.tasks.domain;
 
+import java.io.Serializable;
+
 /**
  * 任务领域实体
  * 用于feature层内部使用，与infrastructure层解耦
  */
-public class TaskEntity {
+public class TaskEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private long id;
     private String title;
     private String description;
