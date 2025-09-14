@@ -28,7 +28,6 @@
             </intent-filter>
         </activity>
         <!-- 注册OCR演示Activity -->
-        <activity android:name=".feature.input.OcrDemoActivity" android:exported="false" />
         <receiver android:name=".feature.reminder.service.reciver.AlarmReceiver" android:exported="false" />
     </application>
 
